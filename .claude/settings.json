@@ -1,0 +1,113 @@
+{
+  "hooks": {
+    "before_implementation": {
+      "command": "python manage.py check",
+      "description": "Validate Django project structure before coding"
+    },
+    "after_model_change": {
+      "command": "python manage.py makemigrations --dry-run && echo 'Migration preview generated'",
+      "description": "Auto-preview migrations after model changes"
+    },
+    "before_commit": {
+      "command": "python -m pytest --co -q 2>/dev/null | head -20 || echo 'No tests found'",
+      "description": "Quick test discovery check before committing"
+    },
+    "before_push": {
+      "command": "python manage.py check --deploy && echo 'Deployment checks passed'",
+      "description": "Django deployment readiness check"
+    }
+  },
+  "allowlist": [
+    {
+      "tool": "Bash",
+      "patterns": [
+        "python manage.py",
+        "pytest",
+        "git status",
+        "git log",
+        "git diff",
+        "find .* -type f"
+      ],
+      "description": "Common Django and testing commands"
+    },
+    {
+      "tool": "Read",
+      "patterns": [
+        "*.py",
+        "*.md",
+        "*.json",
+        "*.yaml",
+        "*.yml",
+        "*.env*"
+      ],
+      "description": "Project configuration and source files"
+    }
+  ],
+  "rules": {
+    "code_style": {
+      "formatter": "black",
+      "linter": "pylint",
+      "min_score": 7.0
+    },
+    "testing": {
+      "framework": "pytest",
+      "min_coverage": 70,
+      "required": true
+    },
+    "database": {
+      "orm": "django",
+      "migrations": "required",
+      "raw_sql": "forbidden"
+    },
+    "secrets": {
+      "env_file": ".env",
+      "example_file": ".env.example",
+      "allowed_in_code": false
+    },
+    "api": {
+      "style": "rest",
+      "prefix": "/api/v1",
+      "format": "json"
+    }
+  },
+  "pipeline_stages": {
+    "research": {
+      "skills": ["Explore", "deep-research", "claude-code-guide"],
+      "duration_estimate_minutes": 15
+    },
+    "planning": {
+      "skills": ["Plan", "artifact-design", "dataviz"],
+      "requires": "research",
+      "duration_estimate_minutes": 30
+    },
+    "implementation": {
+      "skills": ["run", "verify", "code-review"],
+      "requires": "planning",
+      "duration_estimate_minutes": 60
+    },
+    "testing": {
+      "skills": ["verify", "code-review"],
+      "requires": "implementation",
+      "duration_estimate_minutes": 30
+    },
+    "review": {
+      "skills": ["code-review", "security-review", "simplify"],
+      "requires": "testing",
+      "duration_estimate_minutes": 20
+    }
+  },
+  "project_info": {
+    "name": "Learning Companion",
+    "type": "django_rest_api",
+    "description": "AI-powered learning management platform",
+    "framework": "Django 4.2",
+    "language": "Python 3.9",
+    "ai_features": ["summaries", "recommendations", "content_generation"],
+    "critical_files": [
+      "config/settings.py",
+      "learning/models.py",
+      "learning/views.py",
+      "learning/services/ai_service.py"
+    ]
+  }
+}
