@@ -1,0 +1,120 @@
+{% extends "learning/base.html" %}
+
+{% block title %}Profile - Learning Companion{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">👤 {{ request.user.username }}'s Profile</h4>
+                    <a href="{% url 'profile_view' %}" class="btn btn-sm btn-light">Edit Profile</a>
+                </div>
+                <div class="card-body p-5">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Full Name</h6>
+                            <p class="h5">{{ profile.name|default:"Not set" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Cohort</h6>
+                            <p class="h5">{{ profile.cohort|default:"Not set" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-muted small text-uppercase">Focus Area</h6>
+                            <p class="lead">
+                                {% if profile.focus_area %}
+                                {{ profile.focus_area|linebreaks }}
+                                {% else %}
+                                <span class="text-muted">Not set</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Username</h6>
+                            <p>{{ request.user.username }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Email</h6>
+                            <p>{{ request.user.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Member Since</h6>
+                            <p>{{ request.user.date_joined|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Last Login</h6>
+                            <p>
+                                {% if request.user.last_login %}
+                                {{ request.user.last_login|date:"F d, Y g:i A" }}
+                                {% else %}
+                                Never
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <a href="{% url 'profile_view' %}" class="btn btn-primary btn-lg">Edit Profile</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Status</h5>
+                    <div class="mb-3">
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                    <p class="small text-muted">
+                        Your account is in good standing. You can manage all your learning activities from your dashboard.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Stats</h5>
+                    <dl class="row mb-0 small">
+                        <dt class="col-6">Goals:</dt>
+                        <dd class="col-6 text-end">0</dd>
+
+                        <dt class="col-6">Sessions:</dt>
+                        <dd class="col-6 text-end">0</dd>
+
+                        <dt class="col-6">Resources:</dt>
+                        <dd class="col-6 text-end">0</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card bg-info text-white mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">Need Help?</h6>
+                    <p class="small mb-2">Visit your dashboard to:</p>
+                    <ul class="small mb-0">
+                        <li>View learning goals</li>
+                        <li>Track sessions</li>
+                        <li>Manage resources</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -44,5 +44,27 @@ def logout_view(request):
 
 
 @login_required
+def profile_view(request):
+    profile = request.user.profile
+
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile_detail')
+    else:
+        form = ProfileForm(instance=profile)
+
+    return render(request, 'learning/profile.html', {'form': form, 'profile': profile})
+
+
+@login_required
+def profile_detail(request):
+    profile = request.user.profile
+    return render(request, 'learning/profile_detail.html', {'profile': profile})
+
+
+@login_required
 def dashboard(request):
     return render(request, 'learning/dashboard.html')
