@@ -284,14 +284,238 @@ See TICKETS.md for full ticket details.
 - Model naming: CamelCase, singular (User, Goal, LearningSession)
 - View/serializer naming: Clear verbs (ListGoals, CreateGoal, etc.)
 
-### Git Workflow
-- Feature branches: `feature/<feature-name>`
-- Bug fixes: `fix/<bug-description>`
-- Commits: Conventional commits format
-  - `feat: add goal creation endpoint`
-  - `fix: handle null values in session summary`
-  - `test: add tests for AI service`
-  - `docs: update API documentation`
+### Git Workflow (CRITICAL RULES)
+**NEVER work directly on `main` branch for tickets or fixes!**
+
+#### Branch Naming Convention
+```
+feature/ticket-2-1-auth-registration    # For feature tickets
+feature/ticket-3-1-goal-crud            # Clear ticket reference
+fix/ticket-x-y-short-description        # For bug fixes
+chore/ticket-x-y-short-description      # For maintenance
+```
+
+#### Before Starting Work
+```bash
+git checkout main
+git pull origin main
+git checkout -b feature/ticket-x-y-description
+```
+
+#### Conventional Commits
+- `feat: <description>` - New feature
+- `fix: <description>` - Bug fix
+- `chore: <description>` - Maintenance
+- `test: <description>` - Test changes
+- `docs: <description>` - Documentation
+- Example: `feat: create goal CRUD views (Ticket 3.1)`
+
+#### After Implementation & Testing
+```bash
+git push -u origin feature/ticket-x-y-description
+gh pr create --title "..." --body "..."
+# STOP and wait for user confirmation before merging
+```
+
+#### Pull Request Requirements
+- Clear title referencing ticket number
+- Summary with acceptance criteria
+- List of changed files
+- Commands executed
+- Verification results
+- Link to GitHub issue
+
+#### CRITICAL: No Auto-Merge!
+- Claude does NOT merge to main without explicit "merge approved" from user
+- PR must stay open until user approves
+- Issue must NOT be closed until after merge
+- Do NOT touch main branch
+
+#### After User Approves Merge
+```bash
+# User merges the PR in GitHub or you merge with explicit approval
+git checkout main
+git pull origin main
+git branch -d feature/ticket-x-y-description
+git push origin --delete feature/ticket-x-y-description
+```
+
+---
+
+## 5.5 Detailed Git Workflow for Tickets
+
+### Rule 1: NEVER Work Directly on Main
+- ❌ DO NOT: `git checkout main && make changes`
+- ✅ DO: Create feature branch for each ticket
+- ✅ DO: Keep main protected and clean
+
+### Rule 2: Branch per Ticket
+- Every ticket gets its own branch
+- Branch naming: `feature/ticket-X-Y-description`
+- Examples:
+  - `feature/ticket-2-1-user-registration`
+  - `feature/ticket-3-1-goal-model-crud`
+  - `feature/ticket-4-2-session-resource-linking`
+
+### Rule 3: Starting a Ticket
+1. Ensure main is up-to-date
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+2. Create feature branch
+   ```bash
+   git checkout -b feature/ticket-x-y-description
+   ```
+3. Never switch branches until PR is created and pushed
+
+### Rule 4: Commit Messages (Conventional Commits)
+- Format: `<type>: <description> (Ticket X.Y)`
+- Types:
+  - `feat:` - New feature
+  - `fix:` - Bug fix
+  - `chore:` - Maintenance, setup
+  - `test:` - Test additions/changes
+  - `docs:` - Documentation
+- Example: `feat: create goal CRUD endpoints (Ticket 3.1)`
+
+### Rule 5: Push and Create PR
+```bash
+# After tests pass
+git push -u origin feature/ticket-x-y-description
+
+# Create PR with full details
+gh pr create \
+  --title "feat: description (Ticket X.Y)" \
+  --body "
+## Summary
+Brief description of changes
+
+## Changed Files
+- config/settings.py
+- learning/models.py
+- learning/views.py
+
+## Acceptance Criteria
+✓ Criterion 1
+✓ Criterion 2
+
+## Ticket
+Closes #<issue-number> (Ticket X.Y)
+"
+```
+
+### Rule 6: PR Requirements
+- ✅ Descriptive title with ticket reference
+- ✅ Summary of changes
+- ✅ List of all files modified/created
+- ✅ All acceptance criteria marked complete
+- ✅ Link to GitHub issue
+- ✅ Commands executed during implementation
+- ✅ Verification results (tests, Django check, etc.)
+
+### Rule 7: CRITICAL - No Auto-Merge!
+- **Claude does NOT merge** without explicit user approval
+- User must write: "merge approved" or "approve merge"
+- PR stays open until user approves
+- Issue stays open until after merge
+- main branch remains untouched
+
+### Rule 8: After User Approves
+Only after user writes "merge approved":
+```bash
+# User can merge via GitHub UI, or Claude can merge with approval
+git checkout main
+git pull origin main
+git branch -d feature/ticket-x-y-description
+git push origin --delete feature/ticket-x-y-description
+# Optionally close issue and delete branch
+```
+
+### Rule 9: What Claude Does at Each Stage
+
+**RESEARCH Stage**:
+- ✅ Do: Read ticket details, check current code
+- ❌ Don't: Create branch yet
+
+**PLANNING Stage**:
+- ✅ Do: Design implementation
+- ❌ Don't: Write code yet
+
+**IMPLEMENTATION Stage**:
+- ✅ Do: Create branch, write code, commit with conventional format
+- ❌ Don't: Push yet
+
+**TESTING Stage**:
+- ✅ Do: Run all tests, verify acceptance criteria
+- ✅ Do: Run `python manage.py check`
+- ❌ Don't: Push yet if tests fail
+
+**REVIEW Stage**:
+- ✅ Do: Push to origin, create PR
+- ✅ Do: Show summary and ask for approval
+- ❌ Don't: Merge or close issue
+
+**WAIT FOR USER**:
+- ✅ Do: Show PR link, wait for feedback
+- ✅ Do: Show "merge approved" requirement
+- ❌ Don't: Do anything else until approved
+
+### Rule 10: If Tests Fail
+- Do NOT commit
+- Do NOT push
+- Fix the issues
+- Re-run tests
+- Only then commit and push
+
+### Rule 11: If User Asks for Changes
+- Do NOT merge
+- Create new commits on same branch
+- Push to same branch
+- Update PR description
+- Repeat TESTING and REVIEW stages
+
+### Rule 12: Branch Cleanup
+After merge (user approves):
+```bash
+# Delete local branch
+git branch -d feature/ticket-x-y-description
+
+# Delete remote branch
+git push origin --delete feature/ticket-x-y-description
+
+# Return to main
+git checkout main
+git pull origin main
+```
+
+### Rule 13: State Machine (Ticket Lifecycle)
+
+```
+RESEARCH
+   ↓
+PLANNING
+   ↓
+[Create Branch: feature/ticket-x-y]
+   ↓
+IMPLEMENTATION (commit locally)
+   ↓
+TESTING (run tests)
+   ↓
+[Push to origin, Create PR]
+   ↓
+REVIEW (show results, ask for approval)
+   ↓
+[WAIT] ← User must approve
+   ↓
+[User approves: "merge approved"]
+   ↓
+MERGE (user merges or approves Claude to merge)
+   ↓
+CLEANUP (delete branches, return to main)
+   ↓
+DONE
+```
 
 ### View & URL Design
 - Function-based views (not class-based, keep it simple)
