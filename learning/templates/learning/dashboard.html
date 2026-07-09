@@ -1,0 +1,55 @@
+{% extends "learning/base.html" %}
+
+{% block title %}Dashboard - Learning Companion{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="mb-4">Welcome, {{ user.first_name|default:user.username }}! 🎓</h1>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Goals</h5>
+                <p class="card-text display-4">0</p>
+                <a href="#" class="btn btn-primary btn-sm">View Goals</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Sessions</h5>
+                <p class="card-text display-4">0</p>
+                <a href="#" class="btn btn-primary btn-sm">View Sessions</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Hours</h5>
+                <p class="card-text display-4">0</p>
+                <a href="#" class="btn btn-primary btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-6">
+        <h3>Recent Sessions</h3>
+        <p class="text-muted">No sessions yet. <a href="#">Create one</a></p>
+    </div>
+
+    <div class="col-md-6">
+        <h3>Active Goals</h3>
+        <p class="text-muted">No active goals yet. <a href="#">Create one</a></p>
+    </div>
+</div>
+{% endblock %}
