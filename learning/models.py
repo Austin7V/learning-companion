@@ -54,3 +54,28 @@ class Goal(models.Model):
             models.Index(fields=['owner', 'status']),
             models.Index(fields=['owner', '-created_at']),
         ]
+
+
+class LearningSession(models.Model):
+    title = models.CharField(max_length=200)
+    goal = models.ForeignKey(Goal, on_delete=models.SET_NULL, blank=True, null=True, related_name='sessions')
+    date = models.DateField()
+    duration_minutes = models.IntegerField()
+    notes = models.TextField(blank=True)
+    tags = models.CharField(max_length=500, blank=True, help_text='Comma-separated tags')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sessions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.date}"
+
+    def get_tags_list(self):
+        return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+
+    class Meta:
+        ordering = ['-date', '-created_at']
+        indexes = [
+            models.Index(fields=['owner', '-date']),
+            models.Index(fields=['goal', 'owner']),
+        ]

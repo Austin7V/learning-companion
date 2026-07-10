@@ -1,0 +1,121 @@
+{% extends "learning/base.html" %}
+
+{% block title %}Learning Sessions - Learning Companion{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📚 Your Learning Sessions</h2>
+        <a href="{% url 'session_create' %}" class="btn btn-primary">+ New Session</a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Goal Filter -->
+    {% if goals %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter by Goal</h5>
+            <div class="btn-group" role="group">
+                <a href="{% url 'session_list' %}" class="btn btn-outline-primary {% if not selected_goal %}active{% endif %}">
+                    All Sessions
+                </a>
+                {% for goal in goals %}
+                <a href="?goal={{ goal.id }}" class="btn btn-outline-primary {% if selected_goal|add:'0' == goal.id %}active{% endif %}">
+                    {{ goal.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Sessions Table -->
+    {% if sessions %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Date</th>
+                    <th>Duration</th>
+                    <th>Goal</th>
+                    <th>Tags</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                <tr>
+                    <td>
+                        <strong><a href="{% url 'session_detail' session.pk %}" class="text-decoration-none">{{ session.title }}</a></strong>
+                    </td>
+                    <td>{{ session.date|date:"M d, Y" }}</td>
+                    <td>{{ session.duration_minutes }} min</td>
+                    <td>
+                        {% if session.goal %}
+                        <a href="{% url 'goal_detail' session.goal.pk %}" class="badge bg-info text-decoration-none">{{ session.goal.title }}</a>
+                        {% else %}
+                        <span class="text-muted small">No goal</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if session.tags %}
+                        {% for tag in session.get_tags_list %}
+                        <span class="badge bg-secondary">{{ tag }}</span>
+                        {% endfor %}
+                        {% else %}
+                        <span class="text-muted small">No tags</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'session_detail' session.pk %}" class="btn btn-sm btn-info">View</a>
+                        <a href="{% url 'session_update' session.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'session_delete' session.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Sessions</h6>
+                    <p class="h3">{{ sessions.count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Hours</h6>
+                    <p class="h3">{{ total_hours|default:'0' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Average Duration</h6>
+                    <p class="h3">{{ avg_duration|default:'0' }} min</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p class="mb-0">No learning sessions yet. <a href="{% url 'session_create' %}">Create your first session</a>!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

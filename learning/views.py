@@ -3,8 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404
-from .forms import RegisterForm, ProfileForm, GoalForm
-from .models import Profile, Goal
+from .forms import RegisterForm, ProfileForm, GoalForm, LearningSessionForm
+from .models import Profile, Goal, LearningSession
 
 
 def register(request):
@@ -130,6 +130,75 @@ def goal_delete(request, pk):
         return redirect('goal_list')
 
     return render(request, 'learning/goal_confirm_delete.html', {'goal': goal})
+
+
+@login_required
+def session_list(request):
+    goal_filter = request.GET.get('goal', '')
+    sessions = LearningSession.objects.filter(owner=request.user)
+
+    if goal_filter:
+        sessions = sessions.filter(goal__id=goal_filter)
+
+    context = {
+        'sessions': sessions,
+        'goals': Goal.objects.filter(owner=request.user),
+        'selected_goal': goal_filter,
+    }
+    return render(request, 'learning/session_list.html', context)
+
+
+@login_required
+def session_detail(request, pk):
+    session = get_object_or_404(LearningSession, pk=pk, owner=request.user)
+    return render(request, 'learning/session_detail.html', {'session': session})
+
+
+@login_required
+def session_create(request):
+    if request.method == 'POST':
+        form = LearningSessionForm(request.POST)
+        if form.is_valid():
+            session = form.save(commit=False)
+            session.owner = request.user
+            session.save()
+            messages.success(request, 'Learning session created successfully!')
+            return redirect('session_detail', pk=session.pk)
+    else:
+        form = LearningSessionForm()
+        # Filter goals to only show user's goals
+        form.fields['goal'].queryset = Goal.objects.filter(owner=request.user)
+
+    return render(request, 'learning/session_form.html', {'form': form, 'title': 'Create New Session'})
+
+
+@login_required
+def session_update(request, pk):
+    session = get_object_or_404(LearningSession, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        form = LearningSessionForm(request.POST, instance=session)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Learning session updated successfully!')
+            return redirect('session_detail', pk=session.pk)
+    else:
+        form = LearningSessionForm(instance=session)
+        form.fields['goal'].queryset = Goal.objects.filter(owner=request.user)
+
+    return render(request, 'learning/session_form.html', {'form': form, 'session': session, 'title': 'Edit Session'})
+
+
+@login_required
+def session_delete(request, pk):
+    session = get_object_or_404(LearningSession, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        session.delete()
+        messages.success(request, 'Learning session deleted successfully!')
+        return redirect('session_list')
+
+    return render(request, 'learning/session_confirm_delete.html', {'session': session})
 
 
 @login_required
