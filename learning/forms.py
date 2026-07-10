@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile, Goal
+from .models import Profile, Goal, LearningSession
 
 
 class RegisterForm(UserCreationForm):
@@ -60,4 +60,18 @@ class GoalForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description (optional)', 'rows': 4}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+
+
+class LearningSessionForm(forms.ModelForm):
+    class Meta:
+        model = LearningSession
+        fields = ('title', 'goal', 'date', 'duration_minutes', 'notes', 'tags')
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Session Title'}),
+            'goal': forms.Select(attrs={'class': 'form-select'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'duration_minutes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duration (minutes)', 'min': '1'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Session notes...', 'rows': 4}),
+            'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tags (comma-separated)'}),
         }
