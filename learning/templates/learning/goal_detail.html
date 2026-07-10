@@ -1,0 +1,118 @@
+{% extends "learning/base.html" %}
+
+{% block title %}{{ goal.title }} - Learning Companion{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ goal.title }}</h4>
+                    <div>
+                        <a href="{% url 'goal_update' goal.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'goal_list' %}" class="btn btn-sm btn-secondary">Back</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Status Badge -->
+                    <div class="mb-3">
+                        {% if goal.status == 'planned' %}
+                        <span class="badge bg-warning text-dark fs-6">{{ goal.get_status_display }}</span>
+                        {% elif goal.status == 'in-progress' %}
+                        <span class="badge bg-info text-white fs-6">{{ goal.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge bg-success text-white fs-6">{{ goal.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    {% if goal.description %}
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p>{{ goal.description|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Meta Information -->
+                    <hr>
+                    <div class="row text-muted small">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Created:</strong><br>
+                                {{ goal.created_at|date:"F d, Y g:i A" }}
+                            </p>
+                            <p>
+                                <strong>Last Updated:</strong><br>
+                                {{ goal.updated_at|date:"F d, Y g:i A" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if goal.deadline %}
+                            <p>
+                                <strong>Deadline:</strong><br>
+                                {{ goal.deadline|date:"F d, Y" }}
+                                {% if goal.deadline|add:"-1 days" < "now"|date %}
+                                <span class="badge bg-danger">Overdue</span>
+                                {% endif %}
+                            </p>
+                            {% else %}
+                            <p>
+                                <strong>Deadline:</strong><br>
+                                <span class="text-muted">No deadline</span>
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions Section (Future) -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Learning Sessions (0)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-0">No sessions linked to this goal yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Quick Actions -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'goal_update' goal.pk %}" class="btn btn-warning w-100 mb-2">Edit Goal</a>
+                    <a href="{% url 'goal_delete' goal.pk %}" class="btn btn-danger w-100 mb-2">Delete Goal</a>
+                    <a href="{% url 'goal_list' %}" class="btn btn-secondary w-100">Back to Goals</a>
+                </div>
+            </div>
+
+            <!-- Status Card -->
+            <div class="card mb-3 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">Status</h6>
+                    <select class="form-select form-select-sm" onchange="location.href='{% url 'goal_list' %}?status=' + this.value;">
+                        <option value="">All</option>
+                        {% for status_value, status_label in goal.STATUS_CHOICES %}
+                        <option value="{{ status_value }}" {% if goal.status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Goal Progress</h6>
+                    <p class="small mb-2">Track your progress by creating learning sessions linked to this goal.</p>
+                    <a href="{% url 'goal_list' %}" class="btn btn-sm btn-light">View All Goals</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

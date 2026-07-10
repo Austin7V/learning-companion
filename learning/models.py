@@ -28,3 +28,29 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Goal(models.Model):
+    STATUS_CHOICES = (
+        ('planned', 'Planned'),
+        ('in-progress', 'In Progress'),
+        ('done', 'Done'),
+    )
+
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='planned')
+    deadline = models.DateField(blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='goals')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_status_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['owner', 'status']),
+            models.Index(fields=['owner', '-created_at']),
+        ]

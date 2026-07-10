@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import RegisterForm, ProfileForm
-from .models import Profile
+from django.http import Http404
+from .forms import RegisterForm, ProfileForm, GoalForm
+from .models import Profile, Goal
 
 
 def register(request):
@@ -63,6 +64,72 @@ def profile_view(request):
 def profile_detail(request):
     profile = request.user.profile
     return render(request, 'learning/profile_detail.html', {'profile': profile})
+
+
+@login_required
+def goal_list(request):
+    status_filter = request.GET.get('status', '')
+    goals = Goal.objects.filter(owner=request.user)
+
+    if status_filter:
+        goals = goals.filter(status=status_filter)
+
+    context = {
+        'goals': goals,
+        'status_choices': Goal.STATUS_CHOICES,
+        'selected_status': status_filter,
+    }
+    return render(request, 'learning/goal_list.html', context)
+
+
+@login_required
+def goal_detail(request, pk):
+    goal = get_object_or_404(Goal, pk=pk, owner=request.user)
+    return render(request, 'learning/goal_detail.html', {'goal': goal})
+
+
+@login_required
+def goal_create(request):
+    if request.method == 'POST':
+        form = GoalForm(request.POST)
+        if form.is_valid():
+            goal = form.save(commit=False)
+            goal.owner = request.user
+            goal.save()
+            messages.success(request, 'Goal created successfully!')
+            return redirect('goal_detail', pk=goal.pk)
+    else:
+        form = GoalForm()
+
+    return render(request, 'learning/goal_form.html', {'form': form, 'title': 'Create New Goal'})
+
+
+@login_required
+def goal_update(request, pk):
+    goal = get_object_or_404(Goal, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        form = GoalForm(request.POST, instance=goal)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Goal updated successfully!')
+            return redirect('goal_detail', pk=goal.pk)
+    else:
+        form = GoalForm(instance=goal)
+
+    return render(request, 'learning/goal_form.html', {'form': form, 'goal': goal, 'title': 'Edit Goal'})
+
+
+@login_required
+def goal_delete(request, pk):
+    goal = get_object_or_404(Goal, pk=pk, owner=request.user)
+
+    if request.method == 'POST':
+        goal.delete()
+        messages.success(request, 'Goal deleted successfully!')
+        return redirect('goal_list')
+
+    return render(request, 'learning/goal_confirm_delete.html', {'goal': goal})
 
 
 @login_required
