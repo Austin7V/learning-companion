@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404
+from django.db.models import Q, Sum
+from datetime import datetime
 from .forms import RegisterForm, ProfileForm, GoalForm, LearningSessionForm
 from .models import Profile, Goal, LearningSession
 
@@ -203,4 +205,26 @@ def session_delete(request, pk):
 
 @login_required
 def dashboard(request):
-    return render(request, 'learning/dashboard.html')
+    user = request.user
+
+    # Stats
+    active_goals_count = Goal.objects.filter(owner=user, status__in=['planned', 'in-progress']).count()
+    completed_sessions_count = LearningSession.objects.filter(owner=user).count()
+    total_hours_result = LearningSession.objects.filter(owner=user).aggregate(total_minutes=Sum('duration_minutes'))
+    total_minutes = total_hours_result['total_minutes'] or 0
+    total_hours = round(total_minutes / 60, 1)
+
+    # Recent sessions (5 most recent)
+    recent_sessions = LearningSession.objects.filter(owner=user).order_by('-date')[:5]
+
+    # Active goals (not done)
+    active_goals = Goal.objects.filter(owner=user, status__in=['planned', 'in-progress']).order_by('-created_at')
+
+    context = {
+        'active_goals_count': active_goals_count,
+        'completed_sessions_count': completed_sessions_count,
+        'total_hours': total_hours,
+        'recent_sessions': recent_sessions,
+        'active_goals': active_goals,
+    }
+    return render(request, 'learning/dashboard.html', context)
