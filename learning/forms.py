@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile
+from .models import Profile, Goal
 
 
 class RegisterForm(UserCreationForm):
@@ -48,4 +48,16 @@ class ProfileForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
             'cohort': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Cohort (optional)'}),
             'focus_area': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Focus Area (optional)', 'rows': 3}),
+        }
+
+
+class GoalForm(forms.ModelForm):
+    class Meta:
+        model = Goal
+        fields = ('title', 'description', 'status', 'deadline')
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Goal Title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description (optional)', 'rows': 4}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'deadline': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
