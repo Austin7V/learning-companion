@@ -21,6 +21,11 @@ urlpatterns = [
     path('sessions/<int:pk>/', views.session_detail, name='session_detail'),
     path('sessions/<int:pk>/edit/', views.session_update, name='session_update'),
     path('sessions/<int:pk>/delete/', views.session_delete, name='session_delete'),
+    # Resources
+    path('resources/', views.resource_list, name='resource_list'),
+    path('resources/new/', views.resource_create, name='resource_create'),
+    path('resources/<int:pk>/', views.resource_detail, name='resource_detail'),
+    path('resources/<int:pk>/delete/', views.resource_delete, name='resource_delete'),
     # Dashboard
     path('', views.dashboard, name='dashboard'),
 ]

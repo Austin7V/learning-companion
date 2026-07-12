@@ -79,3 +79,29 @@ class LearningSession(models.Model):
             models.Index(fields=['owner', '-date']),
             models.Index(fields=['goal', 'owner']),
         ]
+
+
+class Resource(models.Model):
+    TYPE_CHOICES = (
+        ('article', 'Article'),
+        ('video', 'Video'),
+        ('repo', 'Repository'),
+        ('doc', 'Documentation'),
+    )
+
+    url = models.URLField()
+    title = models.CharField(max_length=300)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    description = models.TextField(blank=True)
+    added_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resources')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_type_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['type']),
+        ]

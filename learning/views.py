@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.http import Http404
 from django.db.models import Q, Sum
 from datetime import datetime
-from .forms import RegisterForm, ProfileForm, GoalForm, LearningSessionForm
-from .models import Profile, Goal, LearningSession
+from .forms import RegisterForm, ProfileForm, GoalForm, LearningSessionForm, ResourceForm
+from .models import Profile, Goal, LearningSession, Resource
 
 
 def register(request):
@@ -228,3 +228,53 @@ def dashboard(request):
         'active_goals': active_goals,
     }
     return render(request, 'learning/dashboard.html', context)
+
+
+@login_required
+def resource_list(request):
+    type_filter = request.GET.get('type', '')
+    resources = Resource.objects.all()
+
+    if type_filter:
+        resources = resources.filter(type=type_filter)
+
+    context = {
+        'resources': resources,
+        'type_choices': Resource.TYPE_CHOICES,
+        'selected_type': type_filter,
+    }
+    return render(request, 'learning/resource_list.html', context)
+
+
+@login_required
+def resource_detail(request, pk):
+    resource = get_object_or_404(Resource, pk=pk)
+    return render(request, 'learning/resource_detail.html', {'resource': resource})
+
+
+@login_required
+def resource_create(request):
+    if request.method == 'POST':
+        form = ResourceForm(request.POST)
+        if form.is_valid():
+            resource = form.save(commit=False)
+            resource.added_by = request.user
+            resource.save()
+            messages.success(request, 'Resource added successfully!')
+            return redirect('resource_detail', pk=resource.pk)
+    else:
+        form = ResourceForm()
+
+    return render(request, 'learning/resource_form.html', {'form': form, 'title': 'Add New Resource'})
+
+
+@login_required
+def resource_delete(request, pk):
+    resource = get_object_or_404(Resource, pk=pk, added_by=request.user)
+
+    if request.method == 'POST':
+        resource.delete()
+        messages.success(request, 'Resource deleted successfully!')
+        return redirect('resource_list')
+
+    return render(request, 'learning/resource_confirm_delete.html', {'resource': resource})

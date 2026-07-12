@@ -1,0 +1,99 @@
+{% extends "learning/base.html" %}
+
+{% block title %}Resources - Learning Companion{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📚 Learning Resources</h2>
+        <a href="{% url 'resource_create' %}" class="btn btn-primary">+ Add Resource</a>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Type Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filter by Type</h5>
+            <div class="btn-group" role="group">
+                <a href="{% url 'resource_list' %}" class="btn btn-outline-primary {% if not selected_type %}active{% endif %}">
+                    All Types
+                </a>
+                {% for value, label in type_choices %}
+                <a href="?type={{ value }}" class="btn btn-outline-primary {% if selected_type == value %}active{% endif %}">
+                    {{ label }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Resources Grid -->
+    {% if resources %}
+    <div class="row g-3">
+        {% for resource in resources %}
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">
+                            <a href="{% url 'resource_detail' resource.pk %}" class="text-decoration-none">{{ resource.title }}</a>
+                        </h5>
+                        <span class="badge bg-primary">{{ resource.get_type_display }}</span>
+                    </div>
+
+                    {% if resource.description %}
+                    <p class="card-text text-muted small">{{ resource.description|truncatewords:30 }}</p>
+                    {% endif %}
+
+                    <p class="text-muted small mb-3">
+                        Added by <strong>{{ resource.added_by.username }}</strong> on {{ resource.created_at|date:"M d, Y" }}
+                    </p>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ resource.url }}" target="_blank" class="btn btn-sm btn-outline-success">Visit Resource</a>
+                        <a href="{% url 'resource_detail' resource.pk %}" class="btn btn-sm btn-info">View</a>
+                        {% if resource.added_by == user %}
+                        <a href="{% url 'resource_delete' resource.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Resources</h6>
+                    <p class="h3">{{ resources.count }}</p>
+                </div>
+            </div>
+        </div>
+        {% if selected_type %}
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">{{ selected_type|upper }}</h6>
+                    <p class="h3">{{ resources.count }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p class="mb-0">No resources found. <a href="{% url 'resource_create' %}">Add your first resource</a>!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
