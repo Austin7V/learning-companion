@@ -1,0 +1,115 @@
+{% extends "learning/base.html" %}
+
+{% block title %}{{ resource.title }} - Learning Companion{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ resource.title }}</h4>
+                    <div>
+                        {% if resource.added_by == user %}
+                        <a href="{% url 'resource_delete' resource.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        {% endif %}
+                        <a href="{% url 'resource_list' %}" class="btn btn-sm btn-secondary">Back</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Resource Metadata -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Type</h6>
+                            <p class="h5"><span class="badge bg-primary">{{ resource.get_type_display }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted small text-uppercase">Added By</h6>
+                            <p class="h5">{{ resource.added_by.username }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Resource URL -->
+                    <div class="mb-4">
+                        <h6 class="text-muted small text-uppercase">URL</h6>
+                        <p>
+                            <a href="{{ resource.url }}" target="_blank" class="btn btn-success btn-sm">
+                                🔗 Visit Resource
+                            </a>
+                        </p>
+                        <p class="text-break small text-muted">{{ resource.url }}</p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Description -->
+                    {% if resource.description %}
+                    <div class="mb-4">
+                        <h5>Description</h5>
+                        <p>{{ resource.description|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <!-- Timestamps -->
+                    <div class="text-muted small">
+                        <p>
+                            <strong>Added:</strong><br>
+                            {{ resource.created_at|date:"F d, Y g:i A" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Quick Actions -->
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ resource.url }}" target="_blank" class="btn btn-success w-100 mb-2">Visit Resource</a>
+                    {% if resource.added_by == user %}
+                    <a href="{% url 'resource_delete' resource.pk %}" class="btn btn-danger w-100 mb-2">Delete Resource</a>
+                    {% endif %}
+                    <a href="{% url 'resource_list' %}" class="btn btn-secondary w-100">Back to Resources</a>
+                </div>
+            </div>
+
+            <!-- Type Info -->
+            <div class="card mb-3 bg-light">
+                <div class="card-body">
+                    <h6 class="card-title">Resource Info</h6>
+                    <dl class="row mb-0 small">
+                        <dt class="col-6">Type:</dt>
+                        <dd class="col-6 text-end">{{ resource.get_type_display }}</dd>
+
+                        <dt class="col-6">Added by:</dt>
+                        <dd class="col-6 text-end">{{ resource.added_by.username }}</dd>
+
+                        <dt class="col-6">Added:</dt>
+                        <dd class="col-6 text-end">{{ resource.created_at|date:"M d" }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Type Icons -->
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">Resource Types</h6>
+                    <ul class="small mb-0">
+                        <li>📄 <strong>Article</strong> - Blog posts, tutorials</li>
+                        <li>🎥 <strong>Video</strong> - Courses, talks</li>
+                        <li>💾 <strong>Repository</strong> - Code examples</li>
+                        <li>📚 <strong>Documentation</strong> - Official docs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

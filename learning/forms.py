@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile, Goal, LearningSession
+from .models import Profile, Goal, LearningSession, Resource
 
 
 class RegisterForm(UserCreationForm):
@@ -74,4 +74,16 @@ class LearningSessionForm(forms.ModelForm):
             'duration_minutes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duration (minutes)', 'min': '1'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Session notes...', 'rows': 4}),
             'tags': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tags (comma-separated)'}),
+        }
+
+
+class ResourceForm(forms.ModelForm):
+    class Meta:
+        model = Resource
+        fields = ('url', 'title', 'type', 'description')
+        widgets = {
+            'url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://example.com'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Resource Title'}),
+            'type': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description (optional)', 'rows': 4}),
         }
